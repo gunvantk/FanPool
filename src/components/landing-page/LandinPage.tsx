@@ -5,9 +5,11 @@ import TopList from '../top-list';
 function LandingPage() {
     return (
         <>
+        <div className="container ">
         <NavBar/>
         <HeroBanner/>
         <TopList/>
+        </div>
         </>
     );
   }
