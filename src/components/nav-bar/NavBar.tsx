@@ -1,4 +1,5 @@
 import Logo from "../logo";
+import WalletButton from "../wallet-button";
 
 function NavBar() {
     return(
@@ -21,7 +22,7 @@ function NavBar() {
 						</div>
 					</div>
 					<div className="hidden md:flex items-center space-x-3 ">
-						<button className="py-2 px-2 font-medium text-white bg-green-500 rounded hover:bg-green-400 transition duration-300">Connect Wallet</button>
+						<WalletButton />
 					</div>
 					<div className="md:hidden flex items-center">
 						<button className="outline-none mobile-menu-button">
