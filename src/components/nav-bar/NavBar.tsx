@@ -2,13 +2,16 @@ import { useState } from "react";
 import Logo from "../logo";
 import WalletButton from "../wallet-button";
 
+interface Props {
+	selectedItem: string;
+	setSelectedItem: (value: string) => void;
+}
 
-function NavBar() {
-	const [selectedItem, setSelectedItem] = useState('home');
+
+function NavBar(props: Props) {
 	const activeItem = "py-4 px-2 text-green-500 border-b-4 border-green-500 font-semibold";
 	const inActiveItem = "py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300";
 
-	
     return(
         <>
         	<nav className="bg-white shadow-lg rounded-b-md">
@@ -18,14 +21,11 @@ function NavBar() {
 						<div>
 							<a href="/" className="flex items-center py-4 px-2">
 								<Logo/>
-								<span className="font-semibold text-gray-500 text-lg">FanPool</span>
+								<span className="font-semibold text-gray-500 text-2xl mr-2">FanPool</span>
+								<Logo/>
 							</a>
 						</div>
-						<div className="hidden md:flex items-center space-x-1">
-							<a href="/" className={selectedItem === 'home' ? activeItem: inActiveItem} onClick={() => setSelectedItem('home')}>Home</a>
-							<a href="/creators" className={selectedItem === 'creators' ? "" : inActiveItem} onClick={() => setSelectedItem('creators')}>Creator Pools</a>
-							<a href="/on-board"  className={selectedItem === 'onBoard' ? "" : inActiveItem} onClick={() => setSelectedItem('onBoard')}>Onboard</a>
-						</div>
+
 					</div>
 					<div className="hidden md:flex items-center space-x-3 ">
 						<WalletButton />
@@ -35,9 +35,6 @@ function NavBar() {
 						<svg className=" w-6 h-6 text-gray-500 hover:text-green-500 "
 							x-show="!showMenu"
 							fill="none"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
 							viewBox="0 0 24 24"
 							stroke="currentColor"
 						>

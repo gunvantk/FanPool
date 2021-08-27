@@ -1,5 +1,4 @@
 import { useFormik } from 'formik';
-import HeroBanner from '../hero-banner';
 
 function OnBoardCreator() {
   const formik = useFormik({
@@ -13,7 +12,6 @@ function OnBoardCreator() {
 
   return (
     <>
-      <HeroBanner message="Onboard to FanPool!" />
       <div className="min-h-screen flex justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
@@ -23,8 +21,6 @@ function OnBoardCreator() {
                 <input id="name" name="name" type="text" onChange={formik.handleChange} value={formik.values.name} className="appearance-none relative block w-full mt-2 mb-2 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm" placeholder="Creator name" />
               </div>
             </div>
-
-
             <div>
               <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-900">
                 Save
