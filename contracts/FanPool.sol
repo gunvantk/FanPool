@@ -16,17 +16,40 @@ interface CEth {
 contract FanPool {
     struct Creator {
         string Name;
+        string SocialUrl;
         uint256 TotalDeposits;
+        uint256 TotalYieldPaid;
     }
 
     event MyLog(string, uint256);
     mapping(address => Creator) public creators;
     mapping(address => mapping(address => uint256)) public creatorPool;
 
-    function onBoardCreators(string memory name) public returns (bool) {
-        Creator memory newCreator = Creator(name, 0);
+    function onBoardCreator(string memory name, string memory socialUrl)
+        public
+        returns (bool)
+    {
+        Creator memory newCreator = Creator(name, socialUrl, 0, 0);
         creators[msg.sender] = newCreator;
         return true;
+    }
+
+    function getPool(address creatorAddress)
+        public
+        view
+        returns (
+            string memory name,
+            string memory socialUrl,
+            uint256 totalDeposits,
+            uint256 totalYieldPaid
+        )
+    {
+        Creator memory creator = creators[creatorAddress];
+
+        name = creator.Name;
+        socialUrl = creator.SocialUrl;
+        totalDeposits = creator.TotalDeposits;
+        totalYieldPaid = creator.TotalYieldPaid;
     }
 
     function deposit(address creatorAddress, address payable _cEtherContract)
