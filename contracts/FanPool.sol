@@ -45,7 +45,8 @@ contract FanPool {
             string memory socialUrl,
             uint256 totalDeposits,
             uint256 totalYieldPaid,
-            uint256 myContribution
+            uint256 maxWithdrawalAvailable,
+            uint256 interestGenerated
         )
     {
         Creator memory creator = creators[creatorAddress];
@@ -54,7 +55,12 @@ contract FanPool {
         socialUrl = creator.SocialUrl;
         totalDeposits = creator.TotalDeposits;
         totalYieldPaid = creator.TotalYieldPaid;
-        myContribution = creatorPool[creatorAddress][msg.sender];
+        if(msg.sender == creatorAddress){
+            interestGenerated = 100; //Todo calculate
+            maxWithdrawalAvailable = 100;
+        } else{
+        maxWithdrawalAvailable = creatorPool[creatorAddress][msg.sender];
+        }
     }
 
      function getPoolsSubscribedByUser()
