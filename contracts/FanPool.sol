@@ -58,6 +58,7 @@ contract FanPool {
         returns (bool)
     {
         creatorPool[creatorAddress][msg.sender] += msg.value;
+        creators[creatorAddress].TotalDeposits += msg.value;
         return supplyEthToCompound(_cEtherContract, msg.value);
     }
 
@@ -67,6 +68,7 @@ contract FanPool {
         address payable _cEtherContract
     ) public {
         creatorPool[creatorAddress][msg.sender] -= amount;
+        creators[creatorAddress].TotalDeposits -= amount;
         redeemCEth(amount, false, _cEtherContract);
         address payable to = payable(msg.sender);
         to.transfer(amount);
