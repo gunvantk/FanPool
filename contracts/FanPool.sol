@@ -23,6 +23,7 @@ contract FanPool {
 
     event MyLog(string, uint256);
     mapping(address => Creator) public creators;
+    address[] public allCreators;
     mapping(address => mapping(address => uint256)) public creatorPool;
     mapping(address => address[]) public userSubscribedPool;
 
@@ -32,6 +33,7 @@ contract FanPool {
     {
         Creator memory newCreator = Creator(name, socialUrl, 0, 0);
         creators[msg.sender] = newCreator;
+        allCreators.push(msg.sender);
         return true;
     }
 
@@ -63,6 +65,16 @@ contract FanPool {
         )
     {
         return userSubscribedPool[msg.sender];
+    }
+
+    function getAllPools()
+        public
+        view
+        returns (
+            address[] memory
+        )
+    {
+        return allCreators;
     }
 
     function deposit(address creatorAddress, address payable _cEtherContract)
