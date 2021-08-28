@@ -24,6 +24,7 @@ contract FanPool {
     event MyLog(string, uint256);
     mapping(address => Creator) public creators;
     mapping(address => mapping(address => uint256)) public creatorPool;
+    mapping(address => address[]) public userSubscribedPool;
 
     function onBoardCreator(string memory name, string memory socialUrl)
         public
@@ -34,14 +35,15 @@ contract FanPool {
         return true;
     }
 
-    function getPool(address creatorAddress)
+    function getPoolByCreator(address creatorAddress)
         public
         view
         returns (
             string memory name,
             string memory socialUrl,
             uint256 totalDeposits,
-            uint256 totalYieldPaid
+            uint256 totalYieldPaid,
+            uint256 myContribution
         )
     {
         Creator memory creator = creators[creatorAddress];
@@ -50,6 +52,17 @@ contract FanPool {
         socialUrl = creator.SocialUrl;
         totalDeposits = creator.TotalDeposits;
         totalYieldPaid = creator.TotalYieldPaid;
+        myContribution = creatorPool[creatorAddress][msg.sender];
+    }
+
+     function getPoolsSubscribedByUser()
+        public
+        view
+        returns (
+            address[] memory
+        )
+    {
+        return userSubscribedPool[msg.sender];
     }
 
     function deposit(address creatorAddress, address payable _cEtherContract)
@@ -59,6 +72,7 @@ contract FanPool {
     {
         creatorPool[creatorAddress][msg.sender] += msg.value;
         creators[creatorAddress].TotalDeposits += msg.value;
+        userSubscribedPool[msg.sender].push(creatorAddress);
         return supplyEthToCompound(_cEtherContract, msg.value);
     }
 
