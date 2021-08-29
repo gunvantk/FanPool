@@ -12,6 +12,8 @@ interface CEth {
     function redeem(uint256) external returns (uint256);
 
     function redeemUnderlying(uint256) external returns (uint256);
+
+    function balanceOf(address) external returns (uint256);
 }
 
 /**
@@ -28,6 +30,7 @@ contract FanPool {
         string SocialUrl;
         uint256 TotalDeposits;
         uint256 TotalYieldPaid;
+        uint256 TotalCEtch;
         bool IsExist; // This allows to see if creator exist in map while Guard check
     }
 
@@ -45,7 +48,7 @@ contract FanPool {
         public
         returns (bool)
     {
-        Creator memory newCreator = Creator(name, socialUrl, 0, 0, true);
+        Creator memory newCreator = Creator(name, socialUrl, 0, 0, 0, true);
         creators[msg.sender] = newCreator;
         allCreators.push(msg.sender);
         return true;
@@ -68,7 +71,7 @@ contract FanPool {
             uint256 totalDeposits,
             uint256 totalYieldPaid,
             uint256 maxWithdrawalAvailable,
-            uint256 interestGenerated
+            uint256 totalCEtch
         )
     {
         Creator memory creator = creators[creatorAddress];
@@ -77,9 +80,9 @@ contract FanPool {
         socialUrl = creator.SocialUrl;
         totalDeposits = creator.TotalDeposits;
         totalYieldPaid = creator.TotalYieldPaid;
+        totalCEtch = creator.TotalCEtch;
         if (msg.sender == creatorAddress) {
-            interestGenerated = 100; //Todo calculate
-            maxWithdrawalAvailable = 100;
+            maxWithdrawalAvailable = 0;
         } else {
             maxWithdrawalAvailable = creatorPool[creatorAddress][msg.sender];
         }
@@ -94,6 +97,18 @@ contract FanPool {
         return allCreators;
     }
 
+    function calculateInterest(uint256 originalBalance, uint256 cEth)
+        public
+        returns (uint256)
+    {
+        CEth cToken = CEth(0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e);
+
+        // Amount of current exchange rate from cToken to underlying
+        uint256 exchangeRateMantissa = (cToken.exchangeRateCurrent()) / 1e18;
+        uint256 underlyingBalance = cEth * exchangeRateMantissa;
+        return underlyingBalance - originalBalance;
+    }
+
     /**
      * Deposit ether into the creator Pool
      * @param creatorAddress The address of the creator amount to deposit amount to
@@ -106,7 +121,10 @@ contract FanPool {
         returns (bool)
     {
         require(creatorAddress != address(0), "Invalid creator Address");
-        require(creatorAddress != msg.sender, "Creator cannot deposit ETH in the pool started by them");
+        require(
+            creatorAddress != msg.sender,
+            "Creator cannot deposit ETH in the pool started by them"
+        );
         require(msg.value != 0, "Amount should be greater than 0.");
         require(
             creators[creatorAddress].IsExist,
@@ -116,7 +134,13 @@ contract FanPool {
         creatorPool[creatorAddress][msg.sender] += msg.value;
         creators[creatorAddress].TotalDeposits += msg.value;
         userSubscribedPool[msg.sender].push(creatorAddress);
-        return supplyEthToCompound(_cEtherContract, msg.value);
+        CEth cToken = CEth(_cEtherContract);
+        uint256 tokensBefore = cToken.balanceOf(address(this));
+        supplyEthToCompound(_cEtherContract, msg.value);
+        uint256 tokensAfter = cToken.balanceOf(address(this));
+        uint256 newTokens = tokensAfter - tokensBefore;
+        creators[creatorAddress].TotalCEtch += newTokens;
+        return true;
     }
 
     /**
@@ -146,7 +170,14 @@ contract FanPool {
 
         creatorPool[creatorAddress][msg.sender] -= amount;
         creators[creatorAddress].TotalDeposits -= amount;
+
+        CEth cToken = CEth(_cEtherContract);
+        uint256 tokensBefore = cToken.balanceOf(address(this));
         redeemCEth(amount, false, _cEtherContract);
+        uint256 tokensAfter = cToken.balanceOf(address(this));
+        uint256 tokensReedemed = tokensBefore - tokensAfter;
+        creators[creatorAddress].TotalCEtch -= tokensReedemed;
+
         address payable to = payable(msg.sender);
         (bool sent, bytes memory data) = to.call{value: amount}("");
         require(sent, "Failed to withdraw Ether");
