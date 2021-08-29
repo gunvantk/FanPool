@@ -28,7 +28,7 @@ contract FanPool {
         string SocialUrl;
         uint256 TotalDeposits;
         uint256 TotalYieldPaid;
-        bool IsExist;
+        bool IsExist; // This allows to see if creator exist in map while Guard check
     }
 
     event MyLog(string, uint256);
@@ -106,6 +106,7 @@ contract FanPool {
         returns (bool)
     {
         require(creatorAddress != address(0), "Invalid creator Address");
+        require(creatorAddress != msg.sender, "Creator cannot deposit ETH in the pool started by them");
         require(msg.value != 0, "Amount should be greater than 0.");
         require(
             creators[creatorAddress].IsExist,
@@ -147,7 +148,8 @@ contract FanPool {
         creators[creatorAddress].TotalDeposits -= amount;
         redeemCEth(amount, false, _cEtherContract);
         address payable to = payable(msg.sender);
-        to.transfer(amount);
+        (bool sent, bytes memory data) = to.call{value: amount}("");
+        require(sent, "Failed to withdraw Ether");
     }
 
     function checkPoolBalanceByUser(address creatorAddress)
