@@ -109,6 +109,16 @@ contract FanPool {
         return underlyingBalance - originalBalance;
     }
 
+    function getCurrentExchangeRate()
+        public
+        returns (uint256)
+    {
+        CEth cToken = CEth(0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e);
+
+        // Amount of current exchange rate from cToken to underlying
+        return cToken.exchangeRateCurrent();   
+    }
+
     /**
      * Deposit ether into the creator Pool
      * @param creatorAddress The address of the creator amount to deposit amount to
