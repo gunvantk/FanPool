@@ -1,5 +1,3 @@
-<img src="./img/logo.sample.png" alt="Logo of the project" align="right">
-
 # FanPool
 
 FanPool is a creator economy platform that allows fans to pool their crypto holdings for their favorite social media influencer, music artist, or any creator. 
